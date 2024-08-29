@@ -31,7 +31,7 @@
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             const chatLog = document.querySelector('#chat-log');
-            chatLog.insertAdjacentHTML('afterbegin', `<p>${data.user}: ${data.message} <em><sub>${data.timestamp}</sub></em></p>`);
+            chatLog.insertAdjacentHTML('afterbegin', `<p style="color: ${data.color};">${data.user}: ${data.message} <em><sub>${data.timestamp}</sub></em></p>`);
         };
 
         chatSocket.onclose = function(e) {

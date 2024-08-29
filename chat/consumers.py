@@ -3,7 +3,7 @@ import json
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from datetime import datetime
-
+from textblob import TextBlob
 from .models import User, Chat, Message
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -24,8 +24,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
+        # Sentiment value
+        blob = TextBlob(message)
+        sentiment = blob.sentiment.polarity
+
         user_id = text_data_json["user"]
         chat_id = text_data_json["chat"]
+
         chat = await sync_to_async(Chat.objects.get)(pk=chat_id)
         user = await sync_to_async(User.objects.get)(pk=user_id)
 
@@ -34,7 +39,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name, {
                 "type": "chat_message",
                 "message": message,
-                "user": user.username,}
+                "user": user.username,
+                "sentiment": sentiment,
+                }
         )
         await sync_to_async(Message.objects.create)(user=user, chat=chat, content=message)
 
@@ -42,11 +49,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         message = event["message"]
         user = event["user"]
+        sentiment = event["sentiment"]
         timestamp = datetime.now().strftime("%b. %d, %Y, %I:%M %p")
+
+        if sentiment > 0:
+            color = "green"
+        elif sentiment < 0:
+            color = "red"
+        else:
+            color = "gray"
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
             "message": message, 
             "user": user, 
-            "timestamp":timestamp
+            "timestamp":timestamp,
+            "color": color,
             }))

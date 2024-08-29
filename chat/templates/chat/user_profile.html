@@ -44,6 +44,7 @@
                 {% if request.user == post.user %}
                     <!-- Edit -->
                     <button class="btn btn-primary edit_button" data_post_id="{{ post.id }}">Edit</button>
+                    <button class="btn btn-primary delete_button text" data_post_id="{{ post.id }}">Delete</button>
                 {% endif %}
             </h3>
             <p id="post_content_{{ post.id }}">{{ post.content }}</p>
