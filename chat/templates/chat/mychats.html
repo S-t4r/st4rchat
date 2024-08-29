@@ -1,0 +1,13 @@
+{% extends "chat/layout.html" %}
+
+{% block body %}
+    {% for chat in chats %}
+    <ul class="list-group">
+        <li class="list-group-item">
+            <a class="link-primary" href="{% url 'chat_room' chat.id %}">
+                <strong>Chat ID: {{ chat.id }}</strong>
+            </a>
+        </li>
+    </ul>
+    {% endfor %}
+{% endblock %}

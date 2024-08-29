@@ -1,0 +1,17 @@
+{% extends "chat/layout.html" %}
+
+{% block title %} All Users {% endblock %}
+
+{% block body %}
+    {% for user in users %}
+    {% if user != request.user %}
+        <ul class="list-group">
+            <li class="list-group-item">
+                <a class="link-primary" href="{% url 'user_profile' user.id %}">
+                    <strong>User: {{ user.username }}</strong>
+                </a>
+            </li>
+        </ul>
+    {% endif %}
+    {% endfor %}
+{% endblock %}

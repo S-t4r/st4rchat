@@ -1,0 +1,15 @@
+{% extends "chat/layout.html" %}
+
+{% block body %}
+<div class="container mt-2">
+    {% for message in messages %}
+        <p><strong>{{ message.user.username }}:</strong> {{ message.content }} <em>{{ message.timestamp }}</em></p>
+    {% endfor %}
+
+    <form action="{% url 'send_message' chat.id %}" method="post">
+        {% csrf_token %}
+        <textarea name="content" rows="3"></textarea>
+        <button type="submit">Send</button>
+    </form>
+</div>
+{% endblock %}
