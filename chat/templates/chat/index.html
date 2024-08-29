@@ -1,1 +1,77 @@
 {% extends "chat/layout.html" %}
+
+{% load static %}
+
+{% block body %}
+    <div class="container-fluid">
+    {% if request.user.is_authenticated %}
+        {% if message %}
+            <h1 style="color: red;">{{ message }}</h1>
+        {% endif %}
+        <h1>All Posts</h1>
+        <div class="border rounded-2 p-2">
+            <form id="create_content" action="{% url 'new_post' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group mb-2">
+                    <label for="new_post"><b>New Post</b></label>
+                    <textarea name="new_post" id="new_post" class="form-control" rows="3"></textarea>
+                </div>
+                <input class="btn btn-primary" type="submit" value="Post">
+            </form>
+        </div>
+    {% endif %}
+
+    {% for post in page_obj %}
+        <div id="{{ post.id }}" class="container border rounded-2 p-2 mt-2">
+            <h3>
+                
+                <a href="{% url 'user_profile' post.user.id %}"
+                style="color: purple; text-decoration: none;">
+                    {{ post.user }}
+                </a>
+
+                {% if request.user == post.user %}
+                    <!-- Edit -->
+                    <button class="btn btn-primary edit_button" data_post_id="{{ post.id }}">Edit</button>
+                    <button class="btn btn-primary delete_button text" data_post_id="{{ post.id }}">Delete</button>
+                {% endif %}
+            </h3>
+            <p id="post_content_{{ post.id }}">{{ post.content }}</p>
+            <p><span style="color: gray; font-weight: 100;">{{ post.timestamp }}</span></p>
+
+            {% if request.user.is_authenticated %}
+            <button class="btn btn-dark like_button" type="button" data_post_id="{{ post.id }}">❤️</button>
+            {% endif %}
+            <span>❤️: <span id="like_count_{{ post.id }}">{{ post.likes.count }}</span></span>
+
+        </div>
+        {% endfor %}
+
+
+        <!-- Pagination -->
+        <div class="pagination p-2">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+        
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Next</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if request.user.is_authenticated %}
+      <script src="{% static 'chat/index.js' %}"></script>
+    <script>
+    // ### If content is empty
+    document.querySelector('#create_content').addEventListener('submit', (e) => {
+        e.stopPropagation();
+        let content = document.querySelector('#new_post');
+        if (content.value === "") e.preventDefault();
+        
+    })
+    </script>
+    {% endif %}
+
+
+{% endblock %}

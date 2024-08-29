@@ -1,13 +1,28 @@
 {% extends "chat/layout.html" %}
 
 {% block body %}
-    {% for chat in chats %}
+    
     <ul class="list-group">
+        <!-- Default chat room -->
+        <li class="list-group-item">
+            <a class="link-primary" href="{% url 'chat_room' 1 %}">
+                <strong>Default Chat Room</strong>
+            </a>
+        </li>
+
+        {% for chat in chats %}    
+        {% if chat.id != 1 %}
         <li class="list-group-item">
             <a class="link-primary" href="{% url 'chat_room' chat.id %}">
-                <strong>Chat ID: {{ chat.id }}</strong>
+                {% for user in chat.users.all %}
+                    {% if user != request.user %}
+                        <strong>{{ user.username }}</strong>
+                    {% endif %}
+                {% endfor %}
+                
             </a>
         </li>
     </ul>
+    {% endif %}
     {% endfor %}
 {% endblock %}

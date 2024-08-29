@@ -20,7 +20,7 @@
                         <a class="nav-link" href="{% url 'user_profile' request.user.id %}"><strong>{{ user.username }}</strong></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'show_users' %}"><strong>Show Users</strong></a>
+                        <a class="nav-link" href="{% url 'following' %}"><strong>Following</strong></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'mychats' %}"><strong>My Chats</strong></a>
@@ -32,6 +32,9 @@
                         </a>
                     </li>
                 {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'show_users' %}"><strong>Show Users</strong></a>
+                </li>
                 {% if request.user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">Log Out</a>

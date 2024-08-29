@@ -2,14 +2,61 @@
 
 {% block body %}
 <div class="container mt-2">
-    {% for message in messages %}
-        <p><strong>{{ message.user.username }}:</strong> {{ message.content }} <em>{{ message.timestamp }}</em></p>
-    {% endfor %}
 
-    <form action="{% url 'send_message' chat.id %}" method="post">
-        {% csrf_token %}
-        <textarea name="content" rows="3"></textarea>
-        <button type="submit">Send</button>
-    </form>
-</div>
+    <div class="container border rounded p-2">
+        <div id="chat-log" class="form-control" style="height: 250px; overflow-y: scroll;">
+            {% for message in messages %}
+                <p>{{ message.user }}: {{ message.content }}
+                    <em>
+                        <sub>{{ message.timestamp }}</sub>
+                    </em>
+                </p>
+            {% endfor %}
+        </div>
+        <input id="chat-message-input" class="form-control mt-2" type="text" size="5" autofocus><br>
+        <input id="chat-message-submit" class="btn btn-primary" type="button" value="Send">
+    </div>
+    
+
+    {{ chat|json_script:"room-name" }}
+    {{ user.id|json_script:"user-id" }}
+
+    <script>
+        const chat = JSON.parse(document.getElementById('room-name').textContent).id;
+        
+        const chatSocket = new WebSocket(
+            'ws://127.0.0.1:8000/ws/chat/' + chat + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const chatLog = document.querySelector('#chat-log');
+            chatLog.insertAdjacentHTML('afterbegin', `<p>${data.user}: ${data.message} <em><sub>${data.timestamp}</sub></em></p>`);
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+            const userId = document.getElementById('user-id').textContent;
+            const timestamp = new Date().toISOString();
+
+            chatSocket.send(JSON.stringify({
+                'message': message,
+                'user': userId,
+                'chat': chat,
+            }));
+            messageInputDom.value = '';
+        };
+    </script>
 {% endblock %}
